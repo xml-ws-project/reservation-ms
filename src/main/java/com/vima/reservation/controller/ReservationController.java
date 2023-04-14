@@ -22,7 +22,7 @@ public class ReservationController {
 
 	private final AvailabilityService availabilityService;
 
-	@PostMapping("/")
+	@PostMapping("/availability")
 	public ResponseEntity<AccommodationAvailability> create(@RequestBody AccommodationAvailability availability) {
 		var createdAvailability = availabilityService.create(availability);
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdAvailability);
