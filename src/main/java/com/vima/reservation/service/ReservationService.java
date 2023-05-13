@@ -9,5 +9,7 @@ import java.util.UUID;
 public interface ReservationService {
 
     Reservation create(Reservation request);
-    Reservation findById(UUID id);
+    Reservation findById(String id);
+//    String reservationResponse(UUID id);
+    String cancelReservation(String id);
 }

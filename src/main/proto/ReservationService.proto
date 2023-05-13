@@ -3,12 +3,14 @@ option java_multiple_files = true;
 package com.vima.gateway;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 import "Shared.proto";
 
 enum ReservationStatus{
   PENDING = 0;
   ACCEPTED = 1;
   DECLINED = 2;
+  CANCELED_BY_GUEST = 3;
 }
 
 message AccommodationInfo{
@@ -43,4 +45,6 @@ service ReservationService{
   rpc create(ReservationRequest) returns (ReservationResponse);
   rpc findAll(Empty) returns (ReservationList);
   rpc findById(Uuid) returns (ReservationResponse);
+  rpc cancelReservation(Uuid) returns(TextMessage);
+  rpc reservationResponse(Uuid) returns(TextMessage);
 }

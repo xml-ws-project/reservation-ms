@@ -32,8 +32,20 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
 
     @Override
     public void findById(Uuid id, StreamObserver<ReservationResponse> responseObserver){
-        var reservation = service.findById(UUID.fromString(id.getValue()));
+        var reservation = service.findById(id.getValue());
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
+        responseObserver.onCompleted();
+    }
+
+//    @Override
+//    public void reservationResponse(Uuid id, StreamObserver<TextMessage> responseObserver){
+//        //var response = service.
+//    }
+
+    @Override
+    public void cancelReservation(Uuid id, StreamObserver<TextMessage> responseObserver){
+        var response = service.cancelReservation((id.getValue()));
+        responseObserver.onNext(TextMessage.newBuilder().setValue(response).build());
         responseObserver.onCompleted();
     }
 
