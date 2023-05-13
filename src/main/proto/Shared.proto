@@ -8,6 +8,10 @@ message Uuid {
   string value = 1;
 }
 
+message TextMessage{
+  string value = 1;
+}
+
 message Empty {}
 
 message DateRange {

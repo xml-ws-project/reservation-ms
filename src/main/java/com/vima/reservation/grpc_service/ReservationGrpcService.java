@@ -25,7 +25,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
                 .build());
         getBlockingStub().getChannel().shutdown();
 
-        var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom));
+        var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom.getAutomaticAcceptance());
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
         responseObserver.onCompleted();
     }
@@ -34,6 +34,26 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
     public void findById(Uuid id, StreamObserver<ReservationResponse> responseObserver){
         var reservation = service.findById(UUID.fromString(id.getValue()));
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
+        responseObserver.onCompleted();
+    }
+
+    public void findAll(Empty empty, StreamObserver<ReservationList> responseObserver){
+        var response = ReservationMapper.convertEntityToMessageList(service.findAll());
+        responseObserver.onNext(ReservationList.newBuilder().addAllReturnList(response).build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void hostResponse(HostResponse response, StreamObserver<TextMessage> responseObserver){
+        var result = service.hostResponse(UUID.fromString(response.getId()), response.getAccept());
+        responseObserver.onNext(TextMessage.newBuilder().setValue(result).build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void cancelReservation(Uuid id, StreamObserver<TextMessage> responseObserver){
+        var response = service.cancelReservation((UUID.fromString(id.getValue())));
+        responseObserver.onNext(TextMessage.newBuilder().setValue(response).build());
         responseObserver.onCompleted();
     }
 
