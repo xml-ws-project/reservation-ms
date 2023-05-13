@@ -38,7 +38,7 @@ message ReservationResponse{
 }
 
 message ReservationList{
-  repeated ReservationResponse retList = 1;
+  repeated ReservationResponse returnList = 1;
 }
 
 message HostResponse{

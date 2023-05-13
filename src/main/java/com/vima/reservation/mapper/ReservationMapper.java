@@ -1,15 +1,14 @@
 package com.vima.reservation.mapper;
 
-import com.vima.gateway.AccommodationResponse;
-import com.vima.gateway.ReservationRequest;
-import com.vima.gateway.ReservationResponse;
-import com.vima.gateway.ReservationStatus;
+import com.vima.gateway.*;
 import com.vima.reservation.converter.LocalDateConverter;
 import com.vima.reservation.model.AccommodationInfo;
 import com.vima.reservation.model.DateRange;
 import com.vima.reservation.model.Reservation;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -61,5 +60,14 @@ public class ReservationMapper {
                 .setDesiredDate(desiredDate)
                 .setUserId(reservation.getUserId())
                 .build();
+    }
+
+    public static List<ReservationResponse> convertEntityToMessageList(List<Reservation> httpList){
+        List<ReservationResponse> grpcList = new ArrayList<>();
+        httpList.forEach(item ->{
+            grpcList.add(convertEntityToMessage(item));
+        });
+
+        return grpcList;
     }
 }

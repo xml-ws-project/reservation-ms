@@ -37,6 +37,12 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
+    public void findAll(Empty empty, StreamObserver<ReservationList> responseObserver){
+        var response = ReservationMapper.convertEntityToMessageList(service.findAll());
+        responseObserver.onNext(ReservationList.newBuilder().addAllReturnList(response).build());
+        responseObserver.onCompleted();
+    }
+
     @Override
     public void hostResponse(HostResponse response, StreamObserver<TextMessage> responseObserver){
         var result = service.hostResponse(UUID.fromString(response.getId()), response.getAccept());

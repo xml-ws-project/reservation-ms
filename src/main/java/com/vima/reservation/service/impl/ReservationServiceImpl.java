@@ -2,6 +2,7 @@ package com.vima.reservation.service.impl;
 
 import com.vima.gateway.ReservationRequest;
 import com.vima.gateway.ReservationStatus;
+import com.vima.reservation.model.DateRange;
 import com.vima.reservation.model.Reservation;
 import com.vima.reservation.repository.ReservationRepository;
 import com.vima.reservation.service.ReservationService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,7 +22,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation create(Reservation newReservation, boolean isAutomatic) {
         if(isAutomatic)
-            newReservation.setStatus(ReservationStatus.ACCEPTED);
+            realizeHostAcceptance(newReservation);
 
         return repository.save(newReservation);
     }
@@ -28,6 +30,11 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation findById(UUID id) {
         return repository.findById(id).get();
+    }
+
+    @Override
+    public List<Reservation> findAll() {
+        return repository.findAll();
     }
 
     @Override
@@ -40,9 +47,23 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private String executeHostResponse(Reservation reservation, boolean accept){
-        reservation.setStatus(accept ? ReservationStatus.ACCEPTED : ReservationStatus.DECLINED);
+        if(accept){
+            realizeHostAcceptance(reservation);
+        }
+        else
+            reservation.setStatus(ReservationStatus.DECLINED);
+
+
         repository.save(reservation);
         return "Reservation successfully " + (accept ? "accepted!" : "declined.");
+    }
+
+    private void realizeHostAcceptance(Reservation reservation){
+        reservation.setStatus(ReservationStatus.ACCEPTED);
+        cancelAllOverlapping(reservation.getDesiredDate());
+    }
+
+    private void cancelAllOverlapping(DateRange desiredDate){
     }
 
     @Override
