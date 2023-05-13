@@ -1,0 +1,112 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.vima.gateway;
+
+import "google/protobuf/timestamp.proto";
+import "Shared.proto";
+
+enum PaymentType {
+  OVERALL = 0;
+  PER_GUEST = 1;
+}
+
+enum PeriodType {
+  SEASON = 0;
+  HOLIDAYS = 1;
+}
+
+message AccommodationRequest {
+  string name = 1;
+  string hostId = 2;
+  string country = 3;
+  string city = 4;
+  string street = 5;
+  string number = 6;
+  string postalCode = 7;
+  repeated string images = 8;
+  int32 minGuests = 9;
+  int32 maxGuests = 10;
+  PaymentType paymentType = 11;
+  bool automaticAcceptance = 12;
+  double regularPrice = 13;
+  repeated string benefitsIds = 14;
+  DateRange availablePeriod = 15;
+}
+
+message AccommodationResponse {
+  string id = 1;
+  string name = 2;
+  string hostId = 3;
+  string country = 4;
+  string city = 5;
+  string street = 6;
+  string number = 7;
+  string postalCode = 8;
+  repeated AdditionalBenefitResponse benefits = 9;
+  repeated string images = 10;
+  int32 minGuests = 11;
+  int32 maxGuests = 12;
+  double regularPrice = 13;
+  PaymentType paymentType = 14;
+}
+
+message UpdateAccommodationRequest {
+  string accommodationId = 1;
+  DateRange period = 2;
+  double price = 3;
+}
+
+message SpecialInfoRequest {
+  string accommodationId = 1;
+  DateRange specialPeriod = 2;
+  double specialPrice = 3;
+  PeriodType periodType = 4;
+}
+
+message SpecialInfoResponse {
+  Uuid id = 1;
+  Uuid accommodationId = 2;
+  double specialPrice = 3;
+  PeriodType periodType = 4;
+}
+
+message AdditionalBenefitRequest {
+  string name = 1;
+  string icon = 2;
+}
+
+message AdditionalBenefit {
+  Uuid id = 1;
+  string name = 2;
+  string icon = 3;
+}
+
+message AdditionalBenefitResponse {
+  string id = 1;
+  string name = 2;
+  string icon = 3;
+}
+
+message AccommodationList {
+  repeated AccommodationResponse response = 1;
+}
+
+message SearchRequest {
+  string country = 1;
+  string city = 2;
+  int32 guests = 3;
+  DateRange period = 4;
+  int32 pageSize = 5;
+  int32 pageNumber = 6;
+}
+
+service AccommodationService {
+  rpc create(AccommodationRequest) returns (AccommodationResponse);
+  rpc update(UpdateAccommodationRequest) returns (Empty);
+  rpc findById(Uuid) returns (AccommodationResponse);
+  rpc findAll(Empty) returns (AccommodationList);
+  rpc findAllByHostId(Uuid) returns (AccommodationList);
+  rpc addBenefit(AdditionalBenefitRequest) returns (AdditionalBenefitResponse);
+  rpc createSpecialPeriod(SpecialInfoRequest) returns (SpecialInfoResponse);
+  rpc searchAccommodation(SearchRequest) returns (AccommodationList);
+}
