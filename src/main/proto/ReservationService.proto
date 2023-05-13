@@ -1,0 +1,46 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.vima.gateway;
+
+import "google/protobuf/timestamp.proto";
+import "Shared.proto";
+
+enum ReservationStatus{
+  PENDING = 0;
+  ACCEPTED = 1;
+  DECLINED = 2;
+}
+
+message AccommodationInfo{
+  string accomId = 1;
+  int32 minGuests = 2;
+  int32 maxGuests = 3;
+  string city = 4;
+  string country = 5;
+}
+
+message ReservationRequest{
+  int32 numOfGuests  = 1;
+  DateRange desiredDate = 2;
+  string accomId = 3;
+  string userId = 4;
+}
+
+message ReservationResponse{
+  string id = 1;
+  int32 numOfGuests = 2;
+  ReservationStatus status = 3;
+  AccommodationInfo accomInfo = 4;
+  DateRange desiredDate = 5;
+  string userId = 6;
+}
+
+message ReservationList{
+  repeated ReservationResponse retList = 1;
+}
+
+service ReservationService{
+  rpc create(ReservationRequest) returns (ReservationResponse);
+  rpc findAll(Empty) returns (ReservationList);
+  rpc findById(Uuid) returns (ReservationResponse);
+}
