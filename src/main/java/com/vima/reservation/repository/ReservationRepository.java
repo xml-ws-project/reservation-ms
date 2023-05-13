@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @Repository
 public interface ReservationRepository extends MongoRepository<Reservation, UUID> {
-    Optional<Reservation> findById(UUID id);
 
     List<Reservation> findAll();
 
