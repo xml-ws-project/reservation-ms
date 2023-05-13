@@ -51,7 +51,6 @@ public class ReservationServiceImpl implements ReservationService {
             realizeReservationAcceptance(reservation);
         else
             reservation.setStatus(ReservationStatus.DECLINED);
-
         repository.save(reservation);
         return "Reservation successfully " + (accept ? "accepted!" : "declined.");
     }
