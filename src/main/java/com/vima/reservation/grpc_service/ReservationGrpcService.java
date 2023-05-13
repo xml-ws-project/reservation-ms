@@ -37,6 +37,16 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void searchReservation(SearchReservationRequest request, StreamObserver<SearchReservationResponse> responseObserver) {
+        var accommodationIds = service.search(request);
+        var responseList = SearchReservationResponse.newBuilder()
+            .addAllIds(accommodationIds)
+            .build();
+        responseObserver.onNext(responseList);
+        responseObserver.onCompleted();
+    }
+
     private gRPCObject getBlockingStub() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9093)
                 .usePlaintext()
