@@ -22,7 +22,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation create(Reservation newReservation, boolean isAutomatic) {
         if(isAutomatic)
-            realizeHostAcceptance(newReservation);
+            realizeReservationAcceptance(newReservation);
 
         return repository.save(newReservation);
     }
@@ -47,23 +47,28 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private String executeHostResponse(Reservation reservation, boolean accept){
-        if(accept){
-            realizeHostAcceptance(reservation);
-        }
+        if(accept)
+            realizeReservationAcceptance(reservation);
         else
             reservation.setStatus(ReservationStatus.DECLINED);
-
 
         repository.save(reservation);
         return "Reservation successfully " + (accept ? "accepted!" : "declined.");
     }
 
-    private void realizeHostAcceptance(Reservation reservation){
+    private void realizeReservationAcceptance(Reservation reservation){
         reservation.setStatus(ReservationStatus.ACCEPTED);
         cancelAllOverlapping(reservation.getDesiredDate());
     }
 
     private void cancelAllOverlapping(DateRange desiredDate){
+        var all = repository.findAll();
+        all.forEach(item ->{
+            if(item.getDesiredDate().getStart().isBefore(desiredDate.getEnd()) && item.getDesiredDate().getEnd().isAfter(desiredDate.getStart())){
+                item.setStatus(ReservationStatus.DECLINED);
+                repository.save(item);
+            }
+        });
     }
 
     @Override
