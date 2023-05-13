@@ -41,10 +41,15 @@ message ReservationList{
   repeated ReservationResponse retList = 1;
 }
 
+message HostResponse{
+  string id = 1;
+  bool accept = 2;
+}
+
 service ReservationService{
   rpc create(ReservationRequest) returns (ReservationResponse);
   rpc findAll(Empty) returns (ReservationList);
   rpc findById(Uuid) returns (ReservationResponse);
   rpc cancelReservation(Uuid) returns(TextMessage);
-  rpc reservationResponse(Uuid) returns(TextMessage);
+  rpc hostResponse(HostResponse) returns(TextMessage);
 }

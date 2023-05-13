@@ -8,8 +8,11 @@ import java.util.UUID;
 
 public interface ReservationService {
 
-    Reservation create(Reservation request);
-    Reservation findById(String id);
-//    String reservationResponse(UUID id);
-    String cancelReservation(String id);
+    Reservation create(Reservation request, boolean isAutomatic);
+
+    Reservation findById(UUID id);
+
+    String hostResponse(UUID id, boolean accept);
+
+    String cancelReservation(UUID id);
 }
