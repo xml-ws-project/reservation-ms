@@ -52,10 +52,22 @@ message UserRequest{
   string role = 2;
 }
 
-service ReservationService{
+message SearchReservationRequest {
+  string country = 1;
+  string city = 2;
+  int32 guests = 3;
+  DateRange period = 4;
+}
+
+message SearchReservationResponse {
+  repeated string ids = 1;
+}
+
+service ReservationService {
   rpc create(ReservationRequest) returns (ReservationResponse);
   rpc findAll(Empty) returns (ReservationList);
   rpc findById(Uuid) returns (ReservationResponse);
+  rpc searchReservation(SearchReservationRequest) returns(SearchReservationResponse);
   rpc cancelReservation(Uuid) returns(TextMessage);
   rpc hostResponse(HostResponse) returns(TextMessage);
   rpc findAllByUser(UserRequest) returns (ReservationList);
