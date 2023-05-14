@@ -17,6 +17,12 @@ public interface ReservationRepository extends MongoRepository<Reservation, UUID
 
     List<Reservation> findAll();
 
+    @Query("{'userId' : ?0, $or: [ { status: PENDING }, { status: ACCEPTED } ] } ")
+    List<Reservation> findAllByGuest(String id);
+
+    @Query("{ 'accomInfo.hostId' : ?0, 'status' : PENDING }")
+    List<Reservation> findAllByHost(String id);
+
     @Query("{ 'status' : '?0'," +
         " 'accomInfo.country' : { $regex : /^?1/, $options: 'i' }," +
         " 'accomInfo.city' : { $regex : /^?2/, $options: 'i' }," +

@@ -26,6 +26,7 @@ public class ReservationMapper {
                 .maxGuests(accom.getMaxGuests())
                 .city(accom.getCity())
                 .country(accom.getCountry())
+                .hostId(accom.getHostId())
                 .build();
 
         return Reservation.builder()
@@ -45,6 +46,7 @@ public class ReservationMapper {
                .setMaxGuests(reservation.getAccomInfo().getMaxGuests())
                .setCity(reservation.getAccomInfo().getCity())
                .setCountry(reservation.getAccomInfo().getCountry())
+               .setHostId(reservation.getAccomInfo().getHostId())
                .build();
 
        var desiredDate = com.vima.gateway.DateRange.newBuilder()

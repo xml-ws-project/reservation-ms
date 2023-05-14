@@ -115,6 +115,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public List<Reservation> findAllByUser(String id, String role) {
+        if(role.equals("HOST"))
+            return repository.findAllByHost(id);
+
+        return repository.findAllByGuest(id);
+    }
+
     public List<String> search(final SearchReservationRequest request) {
         LocalDate periodStart = LocalDateConverter.convertGoogleTimeStampToLocalDate(request.getPeriod().getStart());
         LocalDate periodEnd = LocalDateConverter.convertGoogleTimeStampToLocalDate(request.getPeriod().getEnd());

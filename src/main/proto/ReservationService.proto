@@ -19,6 +19,7 @@ message AccommodationInfo{
   int32 maxGuests = 3;
   string city = 4;
   string country = 5;
+  string hostId = 6;
 }
 
 message ReservationRequest{
@@ -46,6 +47,11 @@ message HostResponse{
   bool accept = 2;
 }
 
+message UserRequest{
+  string id = 1;
+  string role = 2;
+}
+
 message SearchReservationRequest {
   string country = 1;
   string city = 2;
@@ -57,11 +63,12 @@ message SearchReservationResponse {
   repeated string ids = 1;
 }
 
-service ReservationService{
+service ReservationService {
   rpc create(ReservationRequest) returns (ReservationResponse);
   rpc findAll(Empty) returns (ReservationList);
   rpc findById(Uuid) returns (ReservationResponse);
   rpc searchReservation(SearchReservationRequest) returns(SearchReservationResponse);
   rpc cancelReservation(Uuid) returns(TextMessage);
   rpc hostResponse(HostResponse) returns(TextMessage);
+  rpc findAllByUser(UserRequest) returns (ReservationList);
 }
