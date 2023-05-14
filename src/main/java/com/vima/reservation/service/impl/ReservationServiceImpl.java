@@ -104,4 +104,13 @@ public class ReservationServiceImpl implements ReservationService {
         //dobaviti usera i dodati mu +1 otkazivanje;
         return "Reservation successfully canceled.";
     }
+
+    @Override
+    public List<Reservation> findAllByUser(String id, String role) {
+        if(role.equals("HOST"))
+            return repository.findAllByHost(id);
+
+        return repository.findAllByGuest(id);
+    }
+
 }

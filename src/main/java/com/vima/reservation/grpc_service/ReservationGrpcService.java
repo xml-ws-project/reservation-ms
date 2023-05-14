@@ -57,6 +57,13 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void findAllByUser(UserRequest request, StreamObserver<ReservationList> responseObserver){
+        var response = ReservationMapper.convertEntityToMessageList(service.findAllByUser(request.getId(), request.getRole()));
+        responseObserver.onNext(ReservationList.newBuilder().addAllReturnList(response).build());
+        responseObserver.onCompleted();
+    }
+
     private gRPCObject getBlockingStub() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9093)
                 .usePlaintext()

@@ -28,4 +28,7 @@ public class AccommodationInfo {
 
     @Field
     String country;
+
+    @Field
+    String hostId;
 }
