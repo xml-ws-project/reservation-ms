@@ -1,8 +1,10 @@
 package com.vima.reservation.controller;
 
 import com.vima.reservation.model.AccommodationAvailability;
+import com.vima.reservation.model.Reservation;
 import com.vima.reservation.service.AvailabilityService;
 
+import com.vima.reservation.service.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,12 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/reservation")
 @RequiredArgsConstructor
 public class ReservationController {
 
 	private final AvailabilityService availabilityService;
+	private final ReservationService reservationService;
 
 	@PostMapping("/availability")
 	public ResponseEntity<AccommodationAvailability> create(@RequestBody AccommodationAvailability availability) {
@@ -38,4 +43,11 @@ public class ReservationController {
 	public ResponseEntity<AccommodationAvailability> getById(@PathVariable("id") final String id) {
 		return ResponseEntity.status(HttpStatus.OK).body(availabilityService.getById(id));
 	}
+
+
+	@GetMapping("/{hostId}")
+	public List<Reservation> getAls(@PathVariable("hostId") final String hostId) {
+		return reservationService.checkIfHostHasActiveReservations(hostId);
+	}
+
 }

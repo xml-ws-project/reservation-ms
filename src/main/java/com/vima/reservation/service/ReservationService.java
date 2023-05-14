@@ -22,4 +22,5 @@ public interface ReservationService {
     String hostResponse(UUID id, boolean accept);
 
     String cancelReservation(UUID id);
+    List<Reservation> checkIfHostHasActiveReservations(String hostId);
 }

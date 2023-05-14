@@ -25,4 +25,6 @@ public interface ReservationRepository extends MongoRepository<Reservation, UUID
         " $or : [ {$and: [{'desiredDate.start' : { $lt : ?4 }}, {'desiredDate.end' : { $gt : ?4 }}] }," +
         " {$and: [{'desiredDate.start' : { $lt : ?5 }}, {'desiredDate.end' : { $gt : ?5 }}] } ] }")
     List<Reservation> searchReservations(ReservationStatus status, String country, String city, int guests, LocalDate periodStart, LocalDate periodEnd);
+
+
 }

@@ -125,4 +125,9 @@ public class ReservationServiceImpl implements ReservationService {
         });
         return accommodationIds;
     }
+
+    public List<Reservation> checkIfHostHasActiveReservations(String hostId){
+        List<Reservation> reservations = repository.findReservationsForHost(hostId);
+        return reservations;
+    }
 }
