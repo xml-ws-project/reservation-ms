@@ -74,6 +74,26 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void checkIfHostHasActiveReservations(CheckReservationsForUserRequest request, StreamObserver<CheckReservationsForUserResponse> responseObserver) {
+        var response = service.checkIfHostHasActiveReservations(Long.toString(request.getId()));
+        CheckReservationsForUserResponse responseCheck = CheckReservationsForUserResponse.newBuilder()
+            .setContains(response)
+            .build();
+        responseObserver.onNext(responseCheck);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void checkIfGuestHasActiveReservations(CheckReservationsForUserRequest request, StreamObserver<CheckReservationsForUserResponse> responseObserver) {
+        var response = service.checkIfGuestHasActiveReservations(Long.toString(request.getId()));
+        CheckReservationsForUserResponse responseCheck = CheckReservationsForUserResponse.newBuilder()
+            .setContains(response)
+            .build();
+        responseObserver.onNext(responseCheck);
+        responseObserver.onCompleted();
+    }
+
     private gRPCObject getBlockingStub() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9093)
                 .usePlaintext()

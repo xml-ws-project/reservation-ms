@@ -24,4 +24,9 @@ public interface ReservationService {
     String cancelReservation(UUID id);
 
     List<Reservation> findAllByUser(String id, String role);
+
+    boolean checkIfGuestHasActiveReservations(String userId);
+
+    boolean checkIfHostHasActiveReservations(String hostId);
+
 }

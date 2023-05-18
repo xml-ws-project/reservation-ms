@@ -1,8 +1,6 @@
 package com.vima.reservation.service.impl;
 
-import com.vima.gateway.ReservationRequest;
 import com.vima.gateway.ReservationStatus;
-import com.vima.gateway.SearchRequest;
 import com.vima.gateway.SearchReservationRequest;
 import com.vima.reservation.converter.LocalDateConverter;
 import com.vima.reservation.model.DateRange;
@@ -11,10 +9,6 @@ import com.vima.reservation.repository.ReservationRepository;
 import com.vima.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.cglib.core.Local;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -120,6 +114,16 @@ public class ReservationServiceImpl implements ReservationService {
             return repository.findAllByHost(id);
 
         return repository.findAllByGuest(id);
+    }
+
+    @Override
+    public boolean checkIfGuestHasActiveReservations(final String userId) {
+        return repository.findGuestsActiveReservations(userId).size() != 0;
+    }
+
+    @Override
+    public boolean checkIfHostHasActiveReservations(final String hostId) {
+        return repository.findHostActiveReservations(hostId).size() != 0;
     }
 
     public List<String> search(final SearchReservationRequest request) {

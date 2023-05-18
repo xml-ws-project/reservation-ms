@@ -63,12 +63,22 @@ message SearchReservationResponse {
   repeated string ids = 1;
 }
 
-service ReservationService {
+message CheckReservationsForUserRequest{
+  uint64 id = 1;
+}
+
+message CheckReservationsForUserResponse{
+  bool contains = 1;
+}
+
+service ReservationService{
   rpc create(ReservationRequest) returns (ReservationResponse);
   rpc findAll(Empty) returns (ReservationList);
   rpc findById(Uuid) returns (ReservationResponse);
   rpc searchReservation(SearchReservationRequest) returns(SearchReservationResponse);
-  rpc cancelReservation(Uuid) returns(TextMessage);
-  rpc hostResponse(HostResponse) returns(TextMessage);
+  rpc cancelReservation(Uuid) returns (TextMessage);
+  rpc hostResponse(HostResponse) returns (TextMessage);
   rpc findAllByUser(UserRequest) returns (ReservationList);
+  rpc checkIfHostHasActiveReservations(CheckReservationsForUserRequest) returns (CheckReservationsForUserResponse);
+  rpc checkIfGuestHasActiveReservations(CheckReservationsForUserRequest) returns (CheckReservationsForUserResponse);
 }
