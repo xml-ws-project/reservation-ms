@@ -1,9 +1,13 @@
 package com.vima.reservation.grpc_service;
 
 import com.vima.gateway.*;
-import com.vima.reservation.dto.gRPCObject;
+import com.vima.reservation.dto.gRPCAccommodationObject;
+import com.vima.reservation.dto.gRPCUserObject;
 import com.vima.reservation.mapper.ReservationMapper;
 import com.vima.reservation.service.ReservationService;
+
+import communication.FindUserRequest;
+import communication.UserDetailsResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -20,12 +24,19 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
 
     @Override
     public void create(ReservationRequest request, StreamObserver<ReservationResponse> responseObserver){
-        var accom = getBlockingStub().getStub()
+        var accommodationBlockingStub = getBlockingAccommodationStub();
+        var accom = accommodationBlockingStub.getStub()
                 .findById(Uuid.newBuilder().setValue(request.getAccomId())
                 .build());
-        getBlockingStub().getChannel().shutdown();
+        accommodationBlockingStub.getChannel().shutdown();
 
-        var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom.getAutomaticAcceptance());
+        var userBlockingStub = getBlockingUserStub();
+        var host = userBlockingStub.getStub()
+            .findById(FindUserRequest.newBuilder().setId(accom.getHostId())
+                .build());
+        userBlockingStub.getChannel().shutdown();
+
+        var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom, host);
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
         responseObserver.onCompleted();
     }
@@ -55,14 +66,42 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
 
     @Override
     public void hostResponse(HostResponse response, StreamObserver<TextMessage> responseObserver){
-        var result = service.hostResponse(UUID.fromString(response.getId()), response.getAccept());
+        var reservation = service.findById(UUID.fromString(response.getId()));
+
+        var userBlockingStub = getBlockingUserStub();
+        var guest = userBlockingStub.getStub()
+            .findById(FindUserRequest.newBuilder().setId(reservation.getUserId())
+                .build());
+        userBlockingStub.getChannel().shutdown();
+
+        var accommodationBlockingStub = getBlockingAccommodationStub();
+        var accom = accommodationBlockingStub.getStub()
+            .findById(Uuid.newBuilder().setValue(reservation.getAccomInfo().getAccomId())
+                .build());
+        accommodationBlockingStub.getChannel().shutdown();
+
+        var result = service.hostResponse(response, guest, accom);
         responseObserver.onNext(TextMessage.newBuilder().setValue(result).build());
         responseObserver.onCompleted();
     }
 
     @Override
     public void cancelReservation(Uuid id, StreamObserver<TextMessage> responseObserver){
-        var response = service.cancelReservation((UUID.fromString(id.getValue())));
+        var reservation = service.findById(UUID.fromString(id.getValue()));
+
+        var userBlockingStub = getBlockingUserStub();
+        var host = userBlockingStub.getStub()
+            .findById(FindUserRequest.newBuilder().setId(reservation.getAccomInfo().getHostId())
+                .build());
+        userBlockingStub.getChannel().shutdown();
+
+        var accommodationBlockingStub = getBlockingAccommodationStub();
+        var accom = accommodationBlockingStub.getStub()
+            .findById(Uuid.newBuilder().setValue(reservation.getAccomInfo().getAccomId())
+                .build());
+        accommodationBlockingStub.getChannel().shutdown();
+
+        var response = service.cancelReservation((UUID.fromString(id.getValue())), host, accom);
         responseObserver.onNext(TextMessage.newBuilder().setValue(response).build());
         responseObserver.onCompleted();
     }
@@ -94,13 +133,23 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
-    private gRPCObject getBlockingStub() {
+    private gRPCAccommodationObject getBlockingAccommodationStub() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9093)
                 .usePlaintext()
                 .build();
-        return gRPCObject.builder()
+        return gRPCAccommodationObject.builder()
                 .channel(channel)
                 .stub(AccommodationServiceGrpc.newBlockingStub(channel))
                 .build();
+    }
+
+    private gRPCUserObject getBlockingUserStub() {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9092)
+            .usePlaintext()
+            .build();
+        return gRPCUserObject.builder()
+            .channel(channel)
+            .stub(communication.userDetailsServiceGrpc.newBlockingStub(channel))
+            .build();
     }
 }

@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package communication;
+
+enum Role {
+  GUEST = 0;
+  HOST = 1;
+}
+
+message UserDetailsRequest {
+  string username = 1;
+}
+
+message UserDetailsResponse {
+  uint64 id = 1;
+  string username = 2;
+  string password = 3;
+  Role role = 4;
+  uint32 penalties = 5;
+  NotificationOptionsResponse notificationOptions = 6;
+}
+
+message NotificationOptionsResponse {
+  uint64 id = 1;
+  bool reservationRequest = 2;
+  bool reservationCancellation = 3;
+  bool profileRating = 4;
+  bool accommodationRating = 5;
+  bool distinguishedHostStatus = 6;
+  bool hostsReservationAnswer = 7;
+}
+
+message UserId {
+  uint64 id = 1;
+}
+
+message EditNotificationRequest {
+  uint64 id = 1;
+  bool reservationRequest = 2;
+  bool reservationCancellation = 3;
+  bool profileRating = 4;
+  bool accommodationRating = 5;
+  bool distinguishedHostStatus = 6;
+  bool hostsReservationAnswer = 7;
+}
+
+message RegistrationRequest {
+  string firstName = 1;
+  string lastName = 2;
+  string email = 3;
+  string username = 4;
+  string password = 5;
+  Role role = 6;
+  string phoneNumber = 7;
+}
+
+message RegistrationResponse {
+  string message = 1;
+}
+
+message EditUserRequest{
+  string location = 1;
+  string email = 2;
+  string username = 3;
+  string password = 4;
+  string firstName = 5;
+  string lastName = 6;
+  string phoneNumber = 7;
+  string currentUsername = 8;
+}
+
+message EditUserResponse{
+  string message = 1;
+}
+
+message DeleteUserRequest{
+  string username = 1;
+}
+
+message DeleteUserResponse{
+  string message = 1;
+}
+
+message FindUserRequest {
+  string id = 1;
+}
