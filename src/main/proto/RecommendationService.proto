@@ -1,0 +1,9 @@
+syntax = "proto3";
+package com.vima.gateway;
+
+import "Shared.proto";
+
+service RecommendationService{
+    rpc createUserNode(Uuid) returns (Empty);
+    rpc createAccomNode(Uuid) returns (Empty);
+}
