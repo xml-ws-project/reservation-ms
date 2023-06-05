@@ -14,9 +14,14 @@ message RateRelationship{
     int32 value = 3;
 }
 
+message RecommendResponse{
+    repeated string ids = 1;
+}
+
 service RecommendationService{
     rpc createUserNode(Uuid) returns (Empty);
     rpc createAccomNode(Uuid) returns (Empty);
     rpc createReserveRel(ReserveRelationship) returns (Empty);
     rpc createRateRel(RateRelationship) returns (Empty);
+    rpc recommend(Uuid) returns (RecommendResponse);
 }
