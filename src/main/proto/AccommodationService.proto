@@ -134,4 +134,5 @@ service AccommodationService {
   rpc searchAccommodation(SearchRequest) returns (SearchList);
   rpc deleteHostAccommodations(DeleteHostAccommodationsRequest) returns (DeleteHostAccommodationResponse);
   rpc findAllBenefits(Empty) returns(BenefitList);
+  rpc findRecommended(Uuid) returns (AccommodationList);
 }

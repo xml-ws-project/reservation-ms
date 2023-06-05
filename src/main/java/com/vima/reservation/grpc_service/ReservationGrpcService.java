@@ -27,16 +27,9 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         getBlockingStub().getChannel().shutdown();
 
         var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom.getAutomaticAcceptance());
-        createNodeRelationship(reservation.getUserId(), accom.getId());
+        if(accom.getAutomaticAcceptance()) createNodeRelationship(reservation.getId().toString());
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
         responseObserver.onCompleted();
-    }
-
-    private void createNodeRelationship(String userId, String accomId){
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9095).usePlaintext().build();
-        var object = gRPCObjectRec.builder().channel(channel).stub(RecommendationServiceGrpc.newBlockingStub(channel)).build();
-        object.getStub().createReserveRel(RecommendationServiceOuterClass.ReserveRelationship.newBuilder().setUserId(userId).setAccomId(accomId).build());
-        getBlockingStub().getChannel().shutdown();
     }
 
     @Override
@@ -56,6 +49,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
+    @Override
     public void findAll(Empty empty, StreamObserver<ReservationList> responseObserver){
         var response = ReservationMapper.convertEntityToMessageList(service.findAll());
         responseObserver.onNext(ReservationList.newBuilder().addAllReturnList(response).build());
@@ -65,6 +59,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
     @Override
     public void hostResponse(HostResponse response, StreamObserver<TextMessage> responseObserver){
         var result = service.hostResponse(UUID.fromString(response.getId()), response.getAccept());
+        if(response.getAccept()) createNodeRelationship(response.getId());
         responseObserver.onNext(TextMessage.newBuilder().setValue(result).build());
         responseObserver.onCompleted();
     }
@@ -101,6 +96,14 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
             .build();
         responseObserver.onNext(responseCheck);
         responseObserver.onCompleted();
+    }
+
+    private void createNodeRelationship(String reservationId){
+        var res = service.findById(UUID.fromString(reservationId));
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9095).usePlaintext().build();
+        var object = gRPCObjectRec.builder().channel(channel).stub(RecommendationServiceGrpc.newBlockingStub(channel)).build();
+        object.getStub().createReserveRel(RecommendationServiceOuterClass.ReserveRelationship.newBuilder().setUserId(res.getUserId()).setAccomId(res.getAccomInfo().getAccomId()).build());
+        getBlockingStub().getChannel().shutdown();
     }
 
     private gRPCObject getBlockingStub() {
