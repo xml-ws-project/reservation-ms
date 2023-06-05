@@ -2,6 +2,7 @@ package com.vima.reservation.grpc_service;
 
 import com.vima.gateway.*;
 import com.vima.reservation.dto.gRPCObject;
+import com.vima.reservation.dto.gRPCObjectRec;
 import com.vima.reservation.mapper.ReservationMapper;
 import com.vima.reservation.service.ReservationService;
 import io.grpc.ManagedChannel;
@@ -26,11 +27,17 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         getBlockingStub().getChannel().shutdown();
 
         var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom.getAutomaticAcceptance());
+        createNodeRelationship(reservation.getUserId(), accom.getId());
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
         responseObserver.onCompleted();
     }
 
-//    private void createNodeRelationship()
+    private void createNodeRelationship(String userId, String accomId){
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9095).usePlaintext().build();
+        var object = gRPCObjectRec.builder().channel(channel).stub(RecommendationServiceGrpc.newBlockingStub(channel)).build();
+        object.getStub().createReserveRel(RecommendationServiceOuterClass.ReserveRelationship.newBuilder().setUserId(userId).setAccomId(accomId).build());
+        getBlockingStub().getChannel().shutdown();
+    }
 
     @Override
     public void findById(Uuid id, StreamObserver<ReservationResponse> responseObserver){
