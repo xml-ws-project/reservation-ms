@@ -1,0 +1,27 @@
+syntax = "proto3";
+package com.vima.gateway;
+
+import "Shared.proto";
+
+message ReserveRelationship{
+    string userId = 1;
+    string accomId = 2;
+}
+
+message RateRelationship{
+    string userId = 1;
+    string accomId = 2;
+    int32 value = 3;
+}
+
+message RecommendResponse{
+    repeated string ids = 1;
+}
+
+service RecommendationService{
+    rpc createUserNode(Uuid) returns (Empty);
+    rpc createAccomNode(Uuid) returns (Empty);
+    rpc createReserveRel(ReserveRelationship) returns (Empty);
+    rpc createRateRel(RateRelationship) returns (Empty);
+    rpc recommend(Uuid) returns (RecommendResponse);
+}
