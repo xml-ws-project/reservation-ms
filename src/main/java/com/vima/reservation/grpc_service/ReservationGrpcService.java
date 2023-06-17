@@ -1,10 +1,14 @@
 package com.vima.reservation.grpc_service;
 
 import com.vima.gateway.*;
-import com.vima.reservation.dto.gRPCObject;
+import com.vima.reservation.dto.gRPCAccommodationObject;
+import com.vima.reservation.dto.gRPCUserObject;
 import com.vima.reservation.dto.gRPCObjectRec;
 import com.vima.reservation.mapper.ReservationMapper;
 import com.vima.reservation.service.ReservationService;
+
+import communication.FindUserRequest;
+import communication.UserDetailsResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -13,20 +17,33 @@ import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @GrpcService
 @RequiredArgsConstructor
 public class ReservationGrpcService extends ReservationServiceGrpc.ReservationServiceImplBase {
 
     private final ReservationService service;
+    @Value("${channel.address.auth-ms}")
+    private String channelAuthAddress;
+    @Value("${channel.address.accommodation-ms}")
+    private String channelAccommodationAddress;
 
     @Override
     public void create(ReservationRequest request, StreamObserver<ReservationResponse> responseObserver){
-        var accom = getBlockingStub().getStub()
+        var accommodationBlockingStub = getBlockingAccommodationStub();
+        var accom = accommodationBlockingStub.getStub()
                 .findById(Uuid.newBuilder().setValue(request.getAccomId())
                 .build());
-        getBlockingStub().getChannel().shutdown();
+        accommodationBlockingStub.getChannel().shutdown();
 
-        var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom.getAutomaticAcceptance());
+        var userBlockingStub = getBlockingUserStub();
+        var host = userBlockingStub.getStub()
+            .findById(FindUserRequest.newBuilder().setId(accom.getHostId())
+                .build());
+        userBlockingStub.getChannel().shutdown();
+
+        var reservation = service.create(ReservationMapper.convertMessageToEntity(request, accom), accom, host);
         if(accom.getAutomaticAcceptance()) createNodeRelationship(reservation.getId().toString());
         responseObserver.onNext(ReservationMapper.convertEntityToMessage(reservation));
         responseObserver.onCompleted();
@@ -58,15 +75,44 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
 
     @Override
     public void hostResponse(HostResponse response, StreamObserver<TextMessage> responseObserver){
-        var result = service.hostResponse(UUID.fromString(response.getId()), response.getAccept());
+        var reservation = service.findById(UUID.fromString(response.getId()));
+
+        var userBlockingStub = getBlockingUserStub();
+        var guest = userBlockingStub.getStub()
+            .findById(FindUserRequest.newBuilder().setId(reservation.getUserId())
+                .build());
+        userBlockingStub.getChannel().shutdown();
+
+        var accommodationBlockingStub = getBlockingAccommodationStub();
+        var accom = accommodationBlockingStub.getStub()
+            .findById(Uuid.newBuilder().setValue(reservation.getAccomInfo().getAccomId())
+                .build());
+        accommodationBlockingStub.getChannel().shutdown();
+
+        var result = service.hostResponse(response, guest, accom);
         if(response.getAccept()) createNodeRelationship(response.getId());
+
         responseObserver.onNext(TextMessage.newBuilder().setValue(result).build());
         responseObserver.onCompleted();
     }
 
     @Override
     public void cancelReservation(Uuid id, StreamObserver<TextMessage> responseObserver){
-        var response = service.cancelReservation((UUID.fromString(id.getValue())));
+        var reservation = service.findById(UUID.fromString(id.getValue()));
+
+        var userBlockingStub = getBlockingUserStub();
+        var host = userBlockingStub.getStub()
+            .findById(FindUserRequest.newBuilder().setId(reservation.getAccomInfo().getHostId())
+                .build());
+        userBlockingStub.getChannel().shutdown();
+
+        var accommodationBlockingStub = getBlockingAccommodationStub();
+        var accom = accommodationBlockingStub.getStub()
+            .findById(Uuid.newBuilder().setValue(reservation.getAccomInfo().getAccomId())
+                .build());
+        accommodationBlockingStub.getChannel().shutdown();
+
+        var response = service.cancelReservation((UUID.fromString(id.getValue())), host, accom);
         responseObserver.onNext(TextMessage.newBuilder().setValue(response).build());
         responseObserver.onCompleted();
     }
@@ -103,16 +149,26 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9095).usePlaintext().build();
         var object = gRPCObjectRec.builder().channel(channel).stub(RecommendationServiceGrpc.newBlockingStub(channel)).build();
         object.getStub().createReserveRel(RecommendationServiceOuterClass.ReserveRelationship.newBuilder().setUserId(res.getUserId()).setAccomId(res.getAccomInfo().getAccomId()).build());
-        getBlockingStub().getChannel().shutdown();
+        channel.shutdown();
     }
 
-    private gRPCObject getBlockingStub() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9093)
-                .usePlaintext()
-                .build();
-        return gRPCObject.builder()
-                .channel(channel)
-                .stub(AccommodationServiceGrpc.newBlockingStub(channel))
-                .build();
+    private gRPCAccommodationObject getBlockingAccommodationStub() {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(channelAccommodationAddress, 9093)
+            .usePlaintext()
+            .build();
+        return gRPCAccommodationObject.builder()
+            .channel(channel)
+            .stub(AccommodationServiceGrpc.newBlockingStub(channel))
+            .build();
+    }
+
+    private gRPCUserObject getBlockingUserStub() {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(channelAuthAddress, 9092)
+            .usePlaintext()
+            .build();
+        return gRPCUserObject.builder()
+            .channel(channel)
+            .stub(communication.userDetailsServiceGrpc.newBlockingStub(channel))
+            .build();
     }
 }
