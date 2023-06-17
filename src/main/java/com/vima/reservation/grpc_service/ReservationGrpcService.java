@@ -16,11 +16,18 @@ import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @GrpcService
 @RequiredArgsConstructor
 public class ReservationGrpcService extends ReservationServiceGrpc.ReservationServiceImplBase {
 
     private final ReservationService service;
+    @Value("${channel.address.auth-ms}")
+    private String channelAuthAddress;
+    @Value("${channel.address.accommodation-ms}")
+    private String channelAccommodationAddress;
 
     @Override
     public void create(ReservationRequest request, StreamObserver<ReservationResponse> responseObserver){
@@ -134,7 +141,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
     }
 
     private gRPCAccommodationObject getBlockingAccommodationStub() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9093)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(channelAccommodationAddress, 9093)
                 .usePlaintext()
                 .build();
         return gRPCAccommodationObject.builder()
@@ -144,7 +151,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
     }
 
     private gRPCUserObject getBlockingUserStub() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9092)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(channelAuthAddress, 9092)
             .usePlaintext()
             .build();
         return gRPCUserObject.builder()
