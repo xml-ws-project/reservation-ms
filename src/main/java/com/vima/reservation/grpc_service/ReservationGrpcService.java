@@ -8,7 +8,6 @@ import com.vima.reservation.mapper.ReservationMapper;
 import com.vima.reservation.service.ReservationService;
 
 import communication.FindUserRequest;
-import communication.UserDetailsResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -28,6 +27,8 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
     private String channelAuthAddress;
     @Value("${channel.address.accommodation-ms}")
     private String channelAccommodationAddress;
+    @Value("${channel.address.recommendation-ms}")
+    private String channelRecommendationAddress;
 
     @Override
     public void create(ReservationRequest request, StreamObserver<ReservationResponse> responseObserver){
@@ -146,7 +147,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
 
     private void createNodeRelationship(String reservationId){
         var res = service.findById(UUID.fromString(reservationId));
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9095).usePlaintext().build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(channelRecommendationAddress, 9095).usePlaintext().build();
         var object = gRPCObjectRec.builder().channel(channel).stub(RecommendationServiceGrpc.newBlockingStub(channel)).build();
         object.getStub().createReserveRel(RecommendationServiceOuterClass.ReserveRelationship.newBuilder().setUserId(res.getUserId()).setAccomId(res.getAccomInfo().getAccomId()).build());
         channel.shutdown();
