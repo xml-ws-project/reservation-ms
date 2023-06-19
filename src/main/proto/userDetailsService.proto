@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package communication;
+import "model.proto";
+
+service userDetailsService {
+  rpc getUserDetails(UserDetailsRequest) returns (UserDetailsResponse);
+
+  rpc register(RegistrationRequest) returns (RegistrationResponse);
+
+  rpc edit(EditUserRequest) returns (EditUserResponse);
+
+  rpc delete(DeleteUserRequest) returns (DeleteUserResponse);
+
+  rpc findById(FindUserRequest) returns (UserDetailsResponse);
+
+  rpc findNotificationOptionsByUserId(UserId) returns (NotificationOptionsResponse);
+
+  rpc editNotificationOptions(EditNotificationRequest) returns (NotificationOptionsResponse);
+}
