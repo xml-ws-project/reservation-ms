@@ -4,6 +4,8 @@ option java_multiple_files = true;
 package communication;
 import "model.proto";
 
+message Empty {}
+
 service userDetailsService {
   rpc getUserDetails(UserDetailsRequest) returns (UserDetailsResponse);
 
@@ -18,4 +20,6 @@ service userDetailsService {
   rpc findNotificationOptionsByUserId(UserId) returns (NotificationOptionsResponse);
 
   rpc editNotificationOptions(EditNotificationRequest) returns (NotificationOptionsResponse);
+
+  rpc checkIfHostIsDistinguished(CheckRequest) returns (Empty);
 }

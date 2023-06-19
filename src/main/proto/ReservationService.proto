@@ -71,6 +71,14 @@ message CheckReservationsForUserResponse{
   bool contains = 1;
 }
 
+message HostDistinguishedRequest {
+  uint64 hostId = 1;
+}
+
+message HostDistinguishedResponse {
+  bool answer = 1;
+}
+
 service ReservationService{
   rpc create(ReservationRequest) returns (ReservationResponse);
   rpc findAll(Empty) returns (ReservationList);
@@ -81,4 +89,5 @@ service ReservationService{
   rpc findAllByUser(UserRequest) returns (ReservationList);
   rpc checkIfHostHasActiveReservations(CheckReservationsForUserRequest) returns (CheckReservationsForUserResponse);
   rpc checkIfGuestHasActiveReservations(CheckReservationsForUserRequest) returns (CheckReservationsForUserResponse);
+  rpc isHostDistinguished(HostDistinguishedRequest) returns (HostDistinguishedResponse);
 }

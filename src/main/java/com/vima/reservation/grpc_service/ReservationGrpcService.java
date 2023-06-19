@@ -145,6 +145,16 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void isHostDistinguished(HostDistinguishedRequest request, StreamObserver<HostDistinguishedResponse> responseObserver) {
+        var response = service.isHostDistinguished(String.valueOf(request.getHostId()));
+        HostDistinguishedResponse distinguishedResponse = HostDistinguishedResponse.newBuilder()
+            .setAnswer(response)
+            .build();
+        responseObserver.onNext(distinguishedResponse);
+        responseObserver.onCompleted();
+    }
+
     private void createNodeRelationship(String reservationId){
         var res = service.findById(UUID.fromString(reservationId));
         ManagedChannel channel = ManagedChannelBuilder.forAddress(channelRecommendationAddress, 9095).usePlaintext().build();
