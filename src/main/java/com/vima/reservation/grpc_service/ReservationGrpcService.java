@@ -76,6 +76,7 @@ public class ReservationGrpcService extends ReservationServiceGrpc.ReservationSe
 
     @Override
     public void hostResponse(HostResponse response, StreamObserver<TextMessage> responseObserver){
+        if(response.getAccept()) createNodeRelationship(response.getId());
         var reservation = service.findById(UUID.fromString(response.getId()));
 
         var userBlockingStub = getBlockingUserStub();
