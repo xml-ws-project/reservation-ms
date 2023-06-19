@@ -37,4 +37,7 @@ public interface ReservationRepository extends MongoRepository<Reservation, UUID
 
     @Query("{ 'status' : ACCEPTED, 'accomInfo.hostId' : ?0 }")
     public List<Reservation> findHostActiveReservations(String hostId);
+
+    @Query("{ 'status' : DECLINED, 'accomInfo.hostId' : ?0 }")
+    public List<Reservation> findHostCancelledReservations(String hostId);
 }

@@ -33,4 +33,5 @@ public interface ReservationService {
 
     boolean checkIfHostHasActiveReservations(String hostId);
 
+    boolean isHostDistinguished(String hostId);
 }

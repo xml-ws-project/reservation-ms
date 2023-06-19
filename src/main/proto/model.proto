@@ -85,3 +85,7 @@ message DeleteUserResponse{
 message FindUserRequest {
   string id = 1;
 }
+
+message CheckRequest {
+  string hostId = 1;
+}
