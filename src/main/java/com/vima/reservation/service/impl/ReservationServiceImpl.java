@@ -218,7 +218,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     private void checkIfHostIsDistinguished(String hostId) {
         var userBlockingStub = getBlockingUserStub();
-        userBlockingStub.getStub()
+        var response = userBlockingStub.getStub()
                 .checkIfHostIsDistinguished(CheckRequest.newBuilder().setHostId(hostId).build());
         userBlockingStub.getChannel().shutdown();
     }
