@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -200,7 +201,7 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean overallDurationCriteria(List<Reservation> acceptedReservations) {
         var duration = 0;
         for (Reservation reservation: acceptedReservations) {
-            duration += Duration.between(reservation.getDesiredDate().getStart(), reservation.getDesiredDate().getEnd()).toDays();
+            duration += ChronoUnit.DAYS.between(reservation.getDesiredDate().getStart(), reservation.getDesiredDate().getEnd());
         }
         return duration > 50;
     }
